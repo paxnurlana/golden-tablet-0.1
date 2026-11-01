@@ -1,7 +1,7 @@
 {
   "format": "golden-tablet-source-package-v1",
   "files": 598,
-  "totalBytes": 28149717,
+  "totalBytes": 28147392.0,
   "excluded": [
     "runtime databases",
     "credentials and .env",
@@ -108,8 +108,8 @@
     },
     {
       "path": "apps/demo/src/main.tsx",
-      "bytes": 5017,
-      "sha256": "70cfbbdf902e9ee843764650d509cef7c70afdddade686715991319957282e35"
+      "bytes": 2785,
+      "sha256": "50c949ea7aa0ac7f427002b19dd9a66cc58674c2b39978fb2c38ee4ce833d4f9"
     },
     {
       "path": "apps/demo/src/shims/dynamic.tsx",
@@ -133,8 +133,8 @@
     },
     {
       "path": "apps/demo/src/style.css",
-      "bytes": 188,
-      "sha256": "52a89d2d1eee13d1a8fc7d86510ea0c3a3e06dd66c3b2f0624fc6ceb83984e37"
+      "bytes": 95,
+      "sha256": "e8c58b5345402a865106130be264f1827498bc85b31d3f0810ca44e1baffa9f9"
     },
     {
       "path": "apps/demo/tests/demo-api.test.ts",
