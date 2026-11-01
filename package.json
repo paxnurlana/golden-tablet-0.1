@@ -1,0 +1,37 @@
+{
+  "name": "golden-tablet-portfolio",
+  "private": true,
+  "description": "The Golden Tablet — portfolio trading journal with fictional demonstration data.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@11.0.8",
+  "scripts": {
+    "local:backup": "node scripts/backup-local-journal.cjs",
+    "local:build": "node scripts/local-journal.cjs build",
+    "local:start": "node scripts/local-journal.cjs start",
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "start": "pnpm --filter web start",
+    "preview": "pnpm build && pnpm start",
+    "test": "vitest run --maxWorkers=4",
+    "test:watch": "vitest",
+    "typecheck": "pnpm -r --parallel typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "demo:seed": "node scripts/seed-portfolio.cjs",
+    "demo:export": "node scripts/export-browser-demo.cjs",
+    "demo:build": "pnpm --filter portfolio-demo build",
+    "demo:preview": "pnpm --filter portfolio-demo preview",
+    "pages:build": "node scripts/build-pages.cjs",
+    "pages:preview": "node scripts/serve-pages.cjs"
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0",
+    "prettier": "^3.6.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}

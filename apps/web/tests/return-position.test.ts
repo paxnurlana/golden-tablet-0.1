@@ -1,0 +1,33 @@
+// @vitest-environment jsdom
+import { it, expect, vi } from "vitest";
+import { captureReturnPosition, restoreReturnPosition } from "../src/lib/return-position";
+it("restores a stable panel position without retaining any field contents", () => {
+  vi.useFakeTimers();
+  vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+  vi.stubGlobal("requestAnimationFrame", (fn: FrameRequestCallback) => setTimeout(() => fn(0), 0));
+  vi.stubGlobal("cancelAnimationFrame", clearTimeout);
+  const panel = document.createElement("section");
+  panel.setAttribute("data-return-scroll", "account-123");
+  document.body.append(panel);
+  panel.scrollTop = 345;
+  panel.scrollLeft = 19;
+  const input = document.createElement("input");
+  input.setAttribute("aria-label", "Private field");
+  input.value = "secret text must not enter navigation history";
+  panel.append(input);
+  input.focus();
+  input.setSelectionRange(3, 3);
+  captureReturnPosition("/accounts?account=123");
+  panel.scrollTop = 0;
+  panel.scrollLeft = 0;
+  expect(sessionStorage.getItem("golden-return-positions-v1")).not.toContain(input.value);
+  const stop = restoreReturnPosition("/accounts?account=123");
+  vi.advanceTimersByTime(1);
+  expect(panel.scrollTop).toBe(345);
+  expect(panel.scrollLeft).toBe(19);
+  expect(input.selectionStart).toBe(3);
+  stop();
+  panel.remove();
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
+});

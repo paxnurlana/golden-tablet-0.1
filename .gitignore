@@ -1,0 +1,34 @@
+# dependencies
+node_modules/
+
+# builds
+dist/
+.next/
+.next-fast/
+.cache/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# local data (the journal database lives here by default)
+data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# env
+.env
+.env.local
+.env*.local
+
+# misc
+.DS_Store
+*.log
+coverage/
+
+# generated review and packaging artifacts
+output/
+outputs/
+*.zip
+artifacts/

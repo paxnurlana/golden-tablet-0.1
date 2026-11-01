@@ -1,0 +1,22 @@
+{
+  "name": "portfolio-demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 3003",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 3003"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "@golden-tablet/journal-core": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "^6.1.0",
+    "typescript": "^5.9.0",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0"
+  }
+}

@@ -1,0 +1,44 @@
+import {it,expect} from 'vitest';
+import {renderToStaticMarkup} from 'react-dom/server';
+import {journalUnrealisedPnl} from '../src/lib/journal-pnl';
+import {journalMetrics} from '../src/lib/journal-metrics';
+import {JournalMetrics} from '../src/components/journal-metrics';
+import {JournalPnlCell} from '../src/components/journal-pnl-cell';
+import {emptyPotential} from '../src/lib/trade-potential';
+import type {JournalEntry,Term} from '../src/server/personal-journal';
+const terms=['BE','Win','Loss','Missed','Hypothesis'].map(name=>({id:name,name})) as Term[];
+const names=new Map(terms.map(t=>[t.id,t.name]));
+const row=(id:string,result:string,pnl:number|null,potential:number,extra={})=>({id,terms:{result:[result]},realisedR:0,realisedTicks:null,riskTicks:50,accounts:[{accountId:'a',pnlCash:pnl,riskCash:100}],potential:{...emptyPotential(),enabled:true,rr:3,accountCash:{a:potential}},...extra}) as unknown as JournalEntry;
+it('counts saved missed money on BE, Win and Loss without adding it to actual PNL',()=>{
+ const be=row('be','BE',0,1000),win=row('w','Win',300,500),loss=row('l','Loss',-100,300),miss=row('m','Missed',null,700);
+ expect(journalUnrealisedPnl(be,names)).toBe(1000);
+ expect(journalUnrealisedPnl(win,names)).toBe(200);
+ expect(journalUnrealisedPnl(loss,names)).toBe(400);
+ const metrics=journalMetrics([be,be,win,loss,miss,row('h','Hypothesis',0,9000)],terms);
+ expect(metrics).toMatchObject({pnl:{value:200},missedCash:{value:1600,known:3},missedTradesCash:{value:700},totalCash:2300});
+});
+it('preserves unknown and zero, caps negative shortfall, and respects selected accounts',()=>{
+ expect(journalUnrealisedPnl(row('b','BE',null,1000),names)).toBeNull();
+ expect(journalUnrealisedPnl(row('w','Win',600,500),names)).toBe(0);
+ expect(journalUnrealisedPnl(row('m','Missed',0,500),names)).toBeNull();
+ const e=row('b','BE',0,500,{accounts:[{accountId:'a',pnlCash:0,riskCash:100},{accountId:'b',pnlCash:0,riskCash:200}]});
+ expect(journalUnrealisedPnl(e,names)).toBe(1100);
+ const filter={kind:'group' as const,id:'f',conjunction:'and' as const,children:[{kind:'rule' as const,id:'a',property:'account',operator:'any',values:['a'],value:'',end:''}]};
+ expect(journalUnrealisedPnl(e,names,filter)).toBe(500);
+ expect(journalMetrics([],terms)).toMatchObject({missedCash:{value:null},totalCash:null});
+});
+it('shows BE shortfall in parentheses beside actual cash and money in the Unrealised card',()=>{
+ const be=row('be','BE',0,1000);
+ const html=renderToStaticMarkup(<JournalPnlCell entry={be} names={names}/>);
+ expect(html).toContain('0 $');expect(html).toContain('(1');expect(html).toContain('000 $)');
+ expect(html).not.toContain('Упущено ≈');expect(html).toContain('items-baseline');
+ const example=renderToStaticMarkup(<JournalPnlCell entry={row('be','BE',0,270)} names={names}/>);
+ expect(example).toContain('(270 $)');
+ expect(renderToStaticMarkup(<JournalPnlCell entry={row('be','BE',0,0)} names={names}/>)).not.toContain('(0 $)');
+ const metrics=renderToStaticMarkup(<JournalMetrics entries={[be]} terms={terms}/>);
+ const card=metrics.split('data-metric-card="Unrealised RR"')[1]!.split('data-metric-card=')[0]!;
+ expect(card).toContain('000 $');expect(card).toContain('с оценкой $');
+ const missed=renderToStaticMarkup(<JournalPnlCell entry={row('m','Missed',null,700)} names={names}/>);
+ expect(missed).toContain('text-foreground');expect(missed).not.toContain('text-orange-400');expect(missed).toContain('700 $');
+ expect(missed).not.toContain('≈');expect(missed).not.toContain('оценка');expect(missed).not.toContain('<small');
+});
